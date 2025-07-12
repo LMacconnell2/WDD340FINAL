@@ -1,7 +1,52 @@
 <%- include('partials/head') %>
 <body>
     <%- include('partials/header') %>
-    <main>
-        <h1>This is an example of the availability page</h1>
+        <main class="availability">
+        <h1 class="avail-title">Available Rooms:</h1>
+        <section class="list-filter">
+            <form class="filter-form">
+                <label for="date">Date:</label>
+                <br>
+                <input id="input-date" type="text">
+                <br>
+                <br>
+                <label for="building">Building:</label>
+                <br>
+                <input id="input-building" type="text">
+                <br>
+                <br>
+                <label for="floor">Floor:
+                    <label>
+                        <input type="checkbox"  name="1">
+                        1
+                    </label>
+                    <label>
+                        <input type="checkbox"  name="2">
+                        2
+                    </label>
+                    <label>
+                        <input type="checkbox"  name="3">
+                        3
+                    </label>
+                    <label>
+                        <input type="checkbox"  name="4">
+                        4
+                    </label>
+                </label>
+
+            </form>
+        </section>
+        <section class="availability-list">
+            <div class="avail-card">
+                <h2 class="card-title">Room: STC 361</h2>
+                <p class="card-type">Room Type: Classroom</p>
+                <p>Next time open: 2:00pm - 6:00pm</p>
+            </div>
+            <div class="avail-card">
+                <h2 class="card-title">Room: STC 367</h2>
+                <p class="card-type">Room Type: Classroom</p>
+                <p>Next time open: 2:00pm - 6:00pm</p>
+            </div>
+        </section>
     </main>
 <%- include('partials/footer') %>

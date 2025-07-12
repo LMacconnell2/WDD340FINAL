@@ -6,8 +6,28 @@ const createPermissionsTable = `
     );
 `;
 
+const createBuildingTable = `
+    CREATE TABLE IF NOT EXISTS building (
+        building_id CHAR(3) PRIMARY KEY,
+        building_name VARCHAR(45) NOT NULL,
+        time_open TIME NOT NULL,
+        time_closed TIME NOT NULL
+    );
+`;
+
+const createRoomTable = `
+    CREATE TABLE IF NOT EXISTS room (
+        room_id CHAR(10) PRIMARY KEY,
+        building_id CHAR(3) NOT NULL REFERENCES building(building_id),
+        floor_number SMALLINT NOT NULL,
+        max_occupancy INT NOT NULL,
+        room_desc TEXT,
+        permission_id INT NOT NULL REFERENCES permissions(permission_id)
+    );
+`;
+
 const createUserTable = `
-    CREATE TABLE IF NOT EXISTS user (
+    CREATE TABLE IF NOT EXISTS users (
         i_number INT PRIMARY KEY,
         fname VARCHAR(45) NOT NULL,
         lname VARCHAR(45) NOT NULL,
@@ -20,7 +40,7 @@ const createUserTable = `
 const createReservationTable = `
     CREATE TABLE IF NOT EXISTS reservation (
         reserve_id INT PRIMARY KEY,
-        i_number INT NOT NULL REFERENCES user(i_number),
+        i_number INT NOT NULL REFERENCES users(i_number),
         room_id CHAR(10) NOT NULL REFERENCES room(room_id),
         event_name VARCHAR(45) NOT NULL,
         date DATE NOT NULL,
@@ -28,27 +48,16 @@ const createReservationTable = `
         time_end TIME NOT NULL,
         event_desc TEXT,
         people_count INT NOT NULL,
-        confirmed TINYINT NOT NULL
+        confirmed SMALLINT NOT NULL
     );
 `;
 
-const createRoomTable = `
-    CREATE TABLE IF NOT EXISTS room (
-        room_id CHAR(10) PRIMARY KEY,
-        building_id CHAR(3) NOT NULL REFERENCES building(building_id),
-        floor_number TINYINT NOT NULL,
-        max_occupancy INT NOT NULL,
-        room_desc TEXT,
-        permission_id INT NOT NULL REFERENCES permissions(permission_id)
-    );
-`;
-
-const createBuildingTable = `
-    CREATE TABLE IF NOT EXISTS building (
-        building_id CHAR(3) PRIMARY KEY,
-        building_name VARCHAR(45) NOT NULL,
-        time_open TIME NOT NULL,
-        time_closed TIME NOT NULL
+const createMessageTable = `
+    CREATE TABLE IF NOT EXISTS message(
+        i_number INT NOT NULL REFERENCES users(i_number),
+        return_email VARCHAR(45) NOT NULL,
+        message_title VARCHAR(45) NOT NULL,
+        message VARCHAR (256) NOT NULL
     );
 `;
 
@@ -73,25 +82,23 @@ const setupDatabase = async () => {
     try {
         if (verbose) console.log('Setting up database...');
  
-        // Create the permissions table
+        // 1. Permissions
         await db.query(createPermissionsTable);
-        if (verbose) console.log('Permissions table ready');
- 
-        // Create the user table
-        await db.query(createUserTable);
-        if (verbose) console.log('User table ready');
 
-        // Create the reservation table
-        await db.query(createReservationTable);
-        if (verbose) console.log('Reservation table ready');
-
-        // Create the room table
-        await db.query(createRoomTable);
-        if (verbose) console.log('Room table ready');
-
-        // Create the Nuilding table
+        // 2. Building
         await db.query(createBuildingTable);
-        if (verbose) console.log('Building table ready');
+
+        // 3. Room
+        await db.query(createRoomTable);
+
+        // 4. User
+        await db.query(createUserTable);
+
+        // 5. Reservation
+        await db.query(createReservationTable);
+
+        // 6. Messages Table
+        await db.query(createMessageTable);
 
         // Insert permisions
         await db.query(insertPermissions);
