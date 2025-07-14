@@ -215,6 +215,35 @@ nav > a
 {
     background-color: #DDDDDD;
 }
+/* Dashboard Styling - Mobile*/
+.dashboard-title
+{
+    text-align: center;
+}
+
+.dashboard
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.dashboard > section
+{
+    background-color: #EEEEEE;
+    border: 1px solid #444444;
+    margin: 25px;
+    padding: 25px;
+    border-radius: 10px;
+    width: 300px;
+}
+.dashboard-return
+{
+    margin: 0 auto;
+    display: flex;
+    background-color: #EEEEEE;
+    justify-content: center;
+}
+
 /* Footer Styling - Mobile */
 footer
 {
@@ -427,4 +456,11 @@ footer
     {
         width: 98%;
     }
+    .dashboard
+    {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+
 }

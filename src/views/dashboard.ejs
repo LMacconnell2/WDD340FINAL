@@ -1,0 +1,60 @@
+<%- include('partials/head') %>
+<body>
+    <%- include('partials/header') %> 
+    <h2 class="dashboard-title">Dashboard - Create/Edit DB information</h2>
+    <div class="dashboard-return">
+        <a href="/profile">Return to Profile</a>
+    </div>
+    <main class="dashboard">
+       <section class="update-room">
+        <form class="room_form" action="/dashboard/room" method="POST">Create/edit room information
+            <br><br>
+            <label for="room_id">room_id</label><br>
+            <input name="room_id" type="text"><br>
+            <label for="building_id">building_id *ensure that the building_id already exists in the building table</label><br>
+            <input name="building_id" type="text"><br>
+            <label for="floor_number">floor_number</label><br>
+            <input name="floor_number" type="text"><br>
+            <label for="max_occupancy">max_occupancy</label><br>
+            <input name="max_occupancy" type="text"><br>
+            <label for="room_desc">room_desc</label><br>
+            <input name="room_desc" type="text"><br>
+            <label for="permission_id">permission_id</label><br>
+            <input name="permission_id" type="text"><br>
+            <button type="submit">submit</button>
+        </form >
+       </section>
+       <section class="update_building">
+            <form class="building_form" action="/dashboard/building" method="POST">Create/Edit bulding information
+                <br><br>
+                <label for="building_id">bulding_id</label><br>
+                <input name="building_id" type="text"><br>
+                <label for="building_name">bulding_name</label><br>
+                <input name="building_name" type="text"><br>
+                <label for="time_open">time_open</label><br>
+                <input name="time_open" type="text"><br>
+                <label for="time_closed">time_closed</label><br>
+                <input name="time_closed" type="text"><br>
+                <button type="submit">submit</button>
+            </form>
+       </section>
+       <section class="update_users">
+            <form class="users_form" action="/dashboard/users" method="POST">Create/Edit users
+                <br><br>
+                <label for="i_number">i-number</label><br>
+                <input name="i_number" type="text"><br>
+                <label for="fname">first name</label><br>
+                <input name="fname" type="text"><br>
+                <label for="lname">last name</label><br>
+                <input name="lname" type="text"><br>
+                <label for="password">password</label><br>
+                <input name="password" type="text"><br>
+                <label for="email">email</label><br>
+                <input name="email" type="text"><br>
+                <label for="permission_id">permission_id</label><br>
+                <input name="permission_id" type="text"><br>
+                <button type="submit">submit</button>
+            </form>
+       </section>
+    </main>
+<%- include('partials/footer') %>

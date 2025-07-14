@@ -4,24 +4,28 @@
         <div class="login-welcome">
             <h1>I-Reserve</h1>
         </div>
-        <form class="new-account-form">
+        <form class="new-account-form" action="/newaccount" method="POST">
             <h3>Create a New Account:</h3>
             <label>I-Number:</label>
-            <input type="text">
+            <input type="text" name="i_number" required>
             <br>
             <label>Email:</label>
-            <input type="text">
+            <input type="email" name="email" required>
             <br>
-            <label>Username:</label>
-            <input type="text">
+            <label>First Name:</label>
+            <input type="text" name="fname">
+            <br>
+            <label>Last Name:</label>
+            <input type="text" name="lname">
             <br>
             <label>Password:</label>
-            <input type="text">
+            <input type="password" name="password">
             <br>
             <label>Confirm Password:</label>
-            <input type="text">
+            <input type="password" name="password_confirm">
             <br>
-            <button>Submit</button>
+            <button type="submit">Register</button>
+            <a href="/login">Return to Login</a>
         </form>
     </main>
 </body>

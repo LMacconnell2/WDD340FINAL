@@ -4,16 +4,16 @@
         <div class="login-welcome">
             <h1>I-Reserve</h1>
         </div>
-        <form class="login-form">
+        <form class="login-form" action="/login" method="POST">
             <h3>Login:</h3>
             <br>
-            <label>Username:</label>
-            <input type="text">
+            <label>Email:</label>
+            <input type="text" name="email" required>
             <br>
             <label>Password:</label>
-            <input type="text">
+            <input type="password" name="password" required>
             <br>
-            <button>Login</button>
+            <button type="submit">Login</button>
             <br>
             <p>No account yet?</p>
             <a href="/newaccount">Create a New Account</a>
