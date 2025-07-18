@@ -1,52 +1,51 @@
 <%- include('partials/head') %>
 <body>
     <%- include('partials/header') %>
-        <main class="availability">
-        <h1 class="avail-title">Available Rooms:</h1>
-        <section class="list-filter">
-            <form class="filter-form">
-                <label for="date">Date:</label>
-                <br>
-                <input id="input-date" type="text">
-                <br>
-                <br>
-                <label for="building">Building:</label>
-                <br>
-                <input id="input-building" type="text">
-                <br>
-                <br>
-                <label for="floor">Floor:
-                    <label>
-                        <input type="checkbox"  name="1">
-                        1
-                    </label>
-                    <label>
-                        <input type="checkbox"  name="2">
-                        2
-                    </label>
-                    <label>
-                        <input type="checkbox"  name="3">
-                        3
-                    </label>
-                    <label>
-                        <input type="checkbox"  name="4">
-                        4
-                    </label>
-                </label>
+          <main class="availability">
+    <h1 class="avail-title">Available Rooms:</h1>
 
-            </form>
-        </section>
-        <section class="availability-list">
-            <div class="avail-card">
-                <h2 class="card-title">Room: STC 361</h2>
-                <p class="card-type">Room Type: Classroom</p>
-                <p>Next time open: 2:00pm - 6:00pm</p>
-            </div>
-            <div class="avail-card">
-                <h2 class="card-title">Room: STC 367</h2>
-                <p class="card-type">Room Type: Classroom</p>
-                <p>Next time open: 2:00pm - 6:00pm</p>
-            </div>
-        </section>
-    </main>
+    <section class="list-filter">
+      <form class="filter-form" method="GET" action="/availability">
+        <label for="date">Date:</label><br>
+        <input id="input-date" type="date" name="date" value="<%= typeof date !== 'undefined' ? date : '' %>"><br><br>
+
+        <label for="time_start">Start Time:</label><br>
+        <input id="start-time" type="time" name="time_start" value="<%= typeof time_start !== 'undefined' ? time_start : '' %>"><br><br>
+
+        <label for="time_end">End Time:</label><br>
+        <input id="end-time" type="time" name="time_end" value="<%= typeof time_end !== 'undefined' ? time_end : '' %>"><br><br>
+
+        <label for="building">Building:</label><br>
+        <input id="input-building" type="text" name="building" value="<%= typeof building !== 'undefined' ? building : '' %>"><br><br>
+
+        <label for="floor">Floor:</label><br>
+        <% for (let i = 1; i <= 4; i++) { %>
+          <label>
+            <input type="checkbox" name="floor" value="<%= i %>"
+              <%= (Array.isArray(floor) && floor.includes(i.toString())) || floor === i.toString() ? 'checked' : '' %> >
+            <%= i %>
+          </label>
+        <% } %><br><br>
+
+        <button type="submit">Filter</button>
+      </form>
+    </section>
+
+    <section class="availability-list">
+      <% if (rooms && rooms.length > 0) { %>
+        <% rooms.forEach(room => { %>
+          <div class="avail-card">
+            <h2 class="card-title">Room: <%= room.room_id %></h2>
+            <p class="card-type">Room Type: <%= room.room_type || "Unknown" %></p>
+            <p>Max Occupancy: <%= room.max_occupancy %></p>
+            <p>Floor: <%= room.floor_number %>, Building: <%= room.building_id %></p>
+            <p><strong>Available</strong> on <%= date || "selected date" %> 
+              between <%= time_start || "start" %> and <%= time_end || "end" %></p>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No rooms match your criteria.</p>
+      <% } %>
+    </section>
+  </main>
 <%- include('partials/footer') %>

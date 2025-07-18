@@ -47,19 +47,63 @@ app.get('/', (req, res) => {
     res.render('index', { title });
 });
 
-app.get('/dashboard', (req, res) => {
-  const title = "I-Reserve Dashboard";
-  res.render('dashboard', { title });
+app.get('/dashboard', requireLogin, (req, res) => {
+  if (req.session.permission_id != 0)
+  {
+    res.redirect('/profile');
+  }
+  else
+  {
+    const title = "I-Reserve Dashboard";
+    res.render('dashboard', { title });
+  }
 });
 
 app.post('/dashboard/room', async (req, res) => {
-    const { room_id, building_id, floor_number, max_occupancy, room_desc, permission_id } = req.body;
-    const email = req.body.email.toLowerCase();
+  const { room_id, building_id, floor_number, max_occupancy, room_desc, permission_id } = req.body;
   console.log("POST dashboard ROOM running");
 
-    try {
+  // === VALIDATION ===
+  const errors = [];
+
+  // room_id: must be non-empty string, 10 chars max
+  if (!room_id || typeof room_id !== 'string' || room_id.length > 10) {
+    errors.push("Room ID must be a non-empty string up to 10 characters.");
+  }
+
+  // building_id: must be non-empty string, 3 chars max
+  if (!building_id || typeof building_id !== 'string' || building_id.length > 3) {
+    errors.push("Building ID must be a non-empty string up to 3 characters.");
+  }
+
+  // floor_number: must be an integer (0 or positive)
+  if (!Number.isInteger(Number(floor_number)) || Number(floor_number) < 0) {
+    errors.push("Floor number must be a non-negative integer.");
+  }
+
+  // max_occupancy: must be a positive integer
+  if (!Number.isInteger(Number(max_occupancy)) || Number(max_occupancy) <= 0) {
+    errors.push("Max occupancy must be a positive integer.");
+  }
+
+  // room_desc: optional, but must be a string if present
+  if (room_desc && typeof room_desc !== 'string') {
+    errors.push("Room description must be text.");
+  }
+
+  // permission_id: must be a positive integer
+  if (!Number.isInteger(Number(permission_id)) || Number(permission_id) < 0 || Number(permission_id) > 5) {
+    errors.push("Permission ID must be a positive integer less than 5.");
+  }
+
+  if (errors.length > 0) {
+    console.error("Validation failed:", errors);
+    return res.status(400).send(errors.join(" "));
+  }
+
+  try {
     await db.query(`
-      INSERT INTO users (room_id, building_id, floor_number, max_occupancy, room_desc, permission_id)
+      INSERT INTO room (room_id, building_id, floor_number, max_occupancy, room_desc, permission_id)
       VALUES ($1, $2, $3, $4, $5, $6)
       ON CONFLICT (room_id) DO UPDATE
       SET building_id = EXCLUDED.building_id,
@@ -67,12 +111,129 @@ app.post('/dashboard/room', async (req, res) => {
           max_occupancy = EXCLUDED.max_occupancy,
           room_desc = EXCLUDED.room_desc,
           permission_id = EXCLUDED.permission_id;
-      `, [room_id, building_id, floor_number, max_occupancy, room_desc, permission_id]);
+    `, [room_id, building_id, floor_number, max_occupancy, room_desc, permission_id]);
 
     res.redirect('/dashboard');
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Newaccount creation failed.');
+    console.error("DB insert/update error:", err);
+    res.status(500).send('Room creation or update failed.');
+  }
+});
+
+app.post('/dashboard/building', async (req, res) => {
+  let { building_id, building_name, time_open, time_closed } = req.body;
+  console.log("POST dashboard BUILDING running");
+
+  // Convert to uppercase and trim whitespace for consistency
+  building_id = building_id?.trim().toUpperCase();
+  building_name = building_name?.trim();
+  time_open = time_open?.trim();
+  time_closed = time_closed?.trim();
+
+  // Validation
+  const errors = [];
+
+  if (!building_id || building_id.length !== 3) {
+    errors.push("Building ID must be exactly 3 characters.");
+  }
+
+  if (!building_name || building_name.length === 0 || building_name.length > 45) {
+    errors.push("Building name is required and must be 1–45 characters long.");
+  }
+
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/; // Matches HH:MM or HH:MM:SS
+
+  if (!timeRegex.test(time_open)) {
+    errors.push("Opening time must be a valid 24-hour format (HH:MM or HH:MM:SS).");
+  }
+
+  if (!timeRegex.test(time_closed)) {
+    errors.push("Closing time must be a valid 24-hour format (HH:MM or HH:MM:SS).");
+  }
+
+  if (errors.length > 0) {
+    console.error("Validation errors:", errors);
+    return res.status(400).send(errors.join(" "));
+  }
+
+  try {
+    await db.query(`
+      INSERT INTO building (building_id, building_name, time_open, time_closed)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (building_id) DO UPDATE
+      SET building_name = EXCLUDED.building_name,
+          time_open = EXCLUDED.time_open,
+          time_closed = EXCLUDED.time_closed;
+    `, [building_id, building_name, time_open, time_closed]);
+
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.error("DB insert/update error:", err);
+    res.status(500).send('Building creation or update failed.');
+  }
+});
+
+app.post('/dashboard/users', async (req, res) => {
+  let { i_number, fname, lname, password, email, permission_id } = req.body;
+  console.log("POST dashboard USERS running");
+
+    // Trim and normalize inputs
+  i_number = i_number?.trim();
+  fname = fname?.trim();
+  lname = lname?.trim();
+  email = email?.trim().toLowerCase();
+
+  const errors = [];
+
+  // Validation
+  if (!i_number || isNaN(i_number) || i_number.length !== 9) {
+    errors.push("I-Number must be a 9-digit number.");
+  }
+
+  if (!fname || fname.length > 45) {
+    errors.push("First name is required and must be ≤ 45 characters.");
+  }
+
+  if (!lname || lname.length > 45) {
+    errors.push("Last name is required and must be ≤ 45 characters.");
+  }
+
+  if (!email || email.length > 45 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.push("A valid email is required and must be ≤ 45 characters.");
+  }
+
+  if (!password || password.length < 6) {
+    errors.push("Password must be at least 6 characters long.");
+  }
+
+  if (!permission_id || isNaN(permission_id)) {
+    errors.push("Permission ID must be a valid number.");
+  }
+
+  // If validation fails
+  if (errors.length > 0) {
+    console.error("Validation errors:", errors);
+    return res.status(400).send(errors.join(" "));
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10); //Hash the entered password before saving to DB
+
+  try {
+    await db.query(`
+      INSERT INTO users (i_number, fname, lname, password, email, permission_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (i_number) DO UPDATE
+      SET fname = EXCLUDED.fname,
+          lname = EXCLUDED.lname,
+          password = EXCLUDED.password,
+          email = EXCLUDED.email,
+          permission_id = EXCLUDED.permission_id;
+    `, [i_number, fname, lname, hashedPassword, email, permission_id]);
+
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.error("DB insert/update error:", err);
+    res.status(500).send('USers creation or update failed.');
   }
 });
 
@@ -86,9 +247,66 @@ app.get('/profile', requireLogin, (req, res) => {
   res.render('profile', { username: req.session.username, title });
 });
 
-app.get('/availability', (req, res) => {
-    const title = "I-Reserve Availability";
-    res.render('list', { title });
+app.get('/availability', async (req, res) => {
+  const { date, building, floor, time_start, time_end } = req.query;
+
+  const values = [];
+  let filters = [];
+
+  // === Building Filter ===
+  if (building) {
+    values.push(`%${building.toUpperCase()}%`);
+    filters.push(`UPPER(building_id) LIKE $${values.length}`);
+  }
+
+  // === Floor Filter ===
+  if (Array.isArray(floor)) {
+    const floorConditions = floor.map((_, i) => `floor_number = $${values.length + i + 1}`);
+    filters.push(`(${floorConditions.join(" OR ")})`);
+    values.push(...floor.map(Number));
+  } else if (floor) {
+    filters.push(`floor_number = $${values.length + 1}`);
+    values.push(Number(floor));
+  }
+
+  // === Availability Filter: exclude reserved rooms ===
+  if (date && time_start && time_end) {
+    values.push(date, time_start, time_end);
+    const idx = values.length;
+    filters.push(`
+      room_id NOT IN (
+        SELECT room_id FROM reservation
+        WHERE date = $${idx - 2}
+          AND NOT (
+            time_end <= $${idx - 1} OR
+            time_start >= $${idx}
+          )
+      )
+    `);
+  }
+
+  const whereClause = filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : '';
+
+  try {
+    const result = await db.query(`
+      SELECT * FROM room
+      ${whereClause}
+      ORDER BY building_id, room_id;
+    `, values);
+
+    res.render('list', {
+      title: "I-Reserve Availability",
+      rooms: result.rows,
+      date,
+      time_start,
+      time_end,
+      building,
+      floor: Array.isArray(floor) ? floor : floor ? [floor] : []
+    });
+  } catch (err) {
+    console.error("Error fetching availability:", err);
+    res.status(500).send("Failed to load availability.");
+  }
 });
 
 app.get('/newaccount', (req, res) => {
@@ -100,7 +318,6 @@ app.post('/newaccount', async (req, res) => {
     const { i_number, fname, lname, password, password_confirm } = req.body;
     const email = req.body.email.toLowerCase();
   console.log("POST newaccount running");
-  console.log("Request body:", req.body);
 
     try {
         const userCheck = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -182,7 +399,8 @@ app.post('/login', async (req, res) => {
     }
 
     // Step 3: Set session or redirect
-    req.session.userId = user.i_number; 
+    req.session.userId = user.i_number;
+    req.session.permission_id = user.permission_id; 
     console.log("Logged in. Session userId:", req.session.userId);
     req.session.username = `${user.fname} ${user.lname}`;
     res.redirect('/profile');
