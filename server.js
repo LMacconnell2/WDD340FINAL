@@ -44,7 +44,7 @@ function requireLogin(req, res, next) {
 // Starting with my routes here before moving them into their own refactored directories
 app.get('/', (req, res) => {
     const title = "I-Reserve Home";
-    res.render('index', { title });
+    res.render('index', { title, loggedIn: req.session.userId ? true : false });
 });
 
 app.get('/dashboard', requireLogin, (req, res) => {
@@ -55,7 +55,7 @@ app.get('/dashboard', requireLogin, (req, res) => {
   else
   {
     const title = "I-Reserve Dashboard";
-    res.render('dashboard', { title });
+    res.render('dashboard', { title, loggedIn: req.session.userId ? true : false });
   }
 });
 
@@ -239,12 +239,12 @@ app.post('/dashboard/users', async (req, res) => {
 
 app.get('/map', (req, res) => {
     const title = "I-Reserve Map";
-    res.render('map', { title });
+    res.render('map', { title, loggedIn: req.session.userId ? true : false });
 });
 
 app.get('/profile', requireLogin, (req, res) => {
   const title = 'Your Profile';
-  res.render('profile', { username: req.session.username, title });
+  res.render('profile', { username: req.session.username, title, loggedIn: req.session.userId ? true : false });
 });
 
 app.get('/availability', async (req, res) => {
@@ -301,6 +301,7 @@ app.get('/availability', async (req, res) => {
       time_start,
       time_end,
       building,
+      loggedIn: req.session.userId ? true : false, 
       floor: Array.isArray(floor) ? floor : floor ? [floor] : []
     });
   } catch (err) {
@@ -367,7 +368,7 @@ app.get('/logout', (req, res) => {
 
 app.get('/contact', (req, res) => {
     const title = "I-Reserve Contact";
-    res.render('contact', {title});
+    res.render('contact', { title, loggedIn: req.session.userId ? true : false });
 })
 
 //here is the /login page check for password

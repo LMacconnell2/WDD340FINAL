@@ -215,6 +215,11 @@ nav > a
 {
     background-color: #DDDDDD;
 }
+
+.avail-message
+{
+    text-align: center;
+}
 /* Dashboard Styling - Mobile*/
 .dashboard-title
 {
