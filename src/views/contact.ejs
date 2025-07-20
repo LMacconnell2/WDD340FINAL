@@ -1,22 +1,27 @@
 <%- include('partials/head') %>
 <body>
     <%- include('partials/header') %>
-            <main class="contact">
+    <main class="contact">
         <h1 class="contact-page-title">Contact Us: </h1>
-        <form class="contact-form">
+        <form class="contact-form" action="/contact" method="POST">
+            <% if (success) { %>
+                <p class="success-msg">Your message has been sent!</p>
+            <% } %>
             <label for="contact-title">Title:</label>
             <br>
-            <input id="contact-title" type="text">
+            <input id="contact-title" name="message_title" type="text" required>
             <br>
+            
             <label for="contact-email">Email:</label>
             <br>
-            <input id="contact-email" type="text">
+            <input id="contact-email" name="return_email" type="email" required>
             <br>
+            
             <label for="contact-msg">Message:</label>
             <br>
-            <input id="contact-msg" type="text">
-            <br>
-            <br>
+            <textarea id="contact-msg" name="message" required></textarea>
+            <br><br>
+            
             <button type="submit">Submit</button>
         </form>
     </main>

@@ -19,6 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const PORT = process.env.PORT || 3000;
+const HASH = process.env.HASH || "hashed";
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -28,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //setting the session configuration.
 app.use(session({
-  secret: '$2y$10$CuJLMZsG8PtvqqQfLcPWsOC0jblG3W/JDl5RPPESt51mpPj1FpPv2',
+  secret: HASH,
   resave: false,
   saveUninitialized: false
 }));
@@ -243,8 +244,9 @@ app.get('/map', (req, res) => {
 });
 
 app.get('/profile', requireLogin, (req, res) => {
+  const permission_id = req.session.permission_id;
   const title = 'Your Profile';
-  res.render('profile', { username: req.session.username, title, loggedIn: req.session.userId ? true : false });
+  res.render('profile', { username: req.session.username, title, permission_id, loggedIn: req.session.userId ? true : false });
 });
 
 app.get('/availability', async (req, res) => {
@@ -310,6 +312,30 @@ app.get('/availability', async (req, res) => {
   }
 });
 
+app.get('/messages', async (req, res) => {
+  try {
+    // Ensure only admins can access this, if needed
+    if (req.session.permission_id !== 0) {
+      return res.redirect('/login');
+    }
+
+    const result = await db.query(`
+      SELECT message_title, return_email, message 
+      FROM message 
+      ORDER BY message_title;
+    `);
+
+    res.render('messages', {
+      title: "I-Reserve Messages",
+      messages: result.rows,
+      loggedIn: req.session.userId ? true : false
+    });
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).send("Failed to load messages.");
+  }
+});
+
 app.get('/newaccount', (req, res) => {
     const title = "I-Reserve New Account";
     res.render('login/createAccount', { title });
@@ -368,8 +394,30 @@ app.get('/logout', (req, res) => {
 
 app.get('/contact', (req, res) => {
     const title = "I-Reserve Contact";
-    res.render('contact', { title, loggedIn: req.session.userId ? true : false });
+    const success = req.query.success;
+    res.render('contact', { title, success, loggedIn: req.session.userId ? true : false });
 })
+
+app.post('/contact', async (req, res) => {
+  const { return_email, message_title, message } = req.body;
+  const i_number = req.session?.userId; // make sure session is configured
+
+  if (!i_number) {
+    return res.status(401).send("You must be logged in to send a message.");
+  }
+
+  try {
+    await db.query(
+      `INSERT INTO message (i_number, return_email, message_title, message)
+       VALUES ($1, $2, $3, $4)`,
+      [i_number, return_email, message_title, message]
+    );
+    res.redirect('/contact?success=true');
+  } catch (err) {
+    console.error("Error inserting message:", err);
+    res.status(500).send("There was an error sending your message.");
+  }
+});
 
 //here is the /login page check for password
 app.post('/login', async (req, res) => {

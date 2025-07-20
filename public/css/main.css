@@ -249,6 +249,21 @@ nav > a
     justify-content: center;
 }
 
+/* Message page styling*/
+.msg-container
+{
+    background-color: #EEEEEE;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    margin: 25px;
+    padding: 25px;
+}
+
+.msg-email
+{
+    border-bottom: 1px solid #444444;
+}
+
 /* Footer Styling - Mobile */
 footer
 {

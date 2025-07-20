@@ -14,7 +14,10 @@
             <p>anEmail@byui.edu</p>
             <br>
             <a class="options" href="/options">Options</a>
-            <a class="profile-dashboard" href="/dashboard">Dashboard</a>
+            <% if (permission_id == 0) { %>
+                <a class="profile-dashboard" href="/dashboard">Dashboard</a>
+                <a class="profile-dashboard" href="/messages">Messages</a>
+            <% } %>
         </section>
         <section class="user-reservations">
             <h1>My Reservations:</h1>
