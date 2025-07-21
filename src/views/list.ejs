@@ -34,14 +34,16 @@
     <section class="availability-list">
       <% if (rooms && rooms.length > 0) { %>
         <% rooms.forEach(room => { %>
-          <div class="avail-card">
+          <a 
+            class="avail-card" 
+            href="/reserve?room_id=<%= room.room_id %>&date=<%= date %>&time_start=<%= time_start %>&time_end=<%= time_end %>">
             <h2 class="card-title">Room: <%= room.room_id %></h2>
             <p class="card-type">Room Type: <%= room.room_type || "Unknown" %></p>
             <p>Max Occupancy: <%= room.max_occupancy %></p>
             <p>Floor: <%= room.floor_number %>, Building: <%= room.building_id %></p>
             <p><strong>Available</strong> on <%= date || "selected date" %> 
               between <%= time_start || "start" %> and <%= time_end || "end" %></p>
-          </div>
+          </a>
         <% }) %>
       <% } else { %>
         <p class="avail-message">No rooms match your criteria.</p>

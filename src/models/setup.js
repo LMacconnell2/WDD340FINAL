@@ -38,8 +38,9 @@ const createUserTable = `
 `;
 
 const createReservationTable = `
+
     CREATE TABLE IF NOT EXISTS reservation (
-        reserve_id INT PRIMARY KEY,
+        reserve_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         i_number INT NOT NULL REFERENCES users(i_number),
         room_id CHAR(10) NOT NULL REFERENCES room(room_id),
         event_name VARCHAR(45) NOT NULL,

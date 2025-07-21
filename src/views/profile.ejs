@@ -4,14 +4,14 @@
     <main class="profile">
         <section class="user">
             <img src="https://picsum.photos/300/300">
-            <h3>MacConnell, Logan</h2>
-            <h4>Administrator</h2>
-                <br>
+            <h3><%= lname %>, <%= fname %></h3>
+            <h4><%= permission_name %></h4>
+            <br>
             <p>I-Number:</p>
-            <p>995072523</p>
+            <p><%= i_number %></p>
             <br>
             <p>Email:</p>
-            <p>anEmail@byui.edu</p>
+            <p><%= email %></p>
             <br>
             <a class="options" href="/options">Options</a>
             <% if (permission_id == 0) { %>
@@ -19,45 +19,35 @@
                 <a class="profile-dashboard" href="/messages">Messages</a>
             <% } %>
         </section>
+
         <section class="user-reservations">
             <h1>My Reservations:</h1>
             <section class="user-reservation-list">
-                <section class="reservation">
-                    <section>
-                        <h5>Elder's Quorum Activity</h5>
-                        <div>
-                            <h5>STC 367</h5>
-                            <h5>7:00 pm - 8:00 pm</h5>
-                            <h5>7/5/2025</h5>
-                        </div>
-                        <p>We are planning to use the room for a game night with Elder's Quorum 2. Please remember to bring snacks and board games!</p>
-                    </section>
-                    <div class="user-reservations-details">^</div>
-                </section>
-                <section class="reservation">
-                    <section>
-                        <h5>Elder's Quorum Activity</h5>
-                        <div>
-                            <h5>STC 367</h5>
-                            <h5>7:00 pm - 8:00 pm</h5>
-                            <h5>7/5/2025</h5>
-                        </div>
-                        <p>We are planning to use the room for a game night with Elder's Quorum 2. Please remember to bring snacks and board games!</p>
-                    </section>
-                    <div class="user-reservations-details">^</div>
-                </section>
-                <section class="reservation">
-                    <section>
-                        <h5>Elder's Quorum Activity</h5>
-                        <div>
-                            <h5>STC 367</h5>
-                            <h5>7:00 pm - 8:00 pm</h5>
-                            <h5>7/5/2025</h5>
-                        </div>
-                        <p>We are planning to use the room for a game night with Elder's Quorum 2. Please remember to bring snacks and board games!</p>
-                    </section>
-                    <div class="user-reservations-details">^</div>
-                </section>
+                <% if (reservations.length === 0) { %>
+                    <p>You don't have any reservations yet.</p>
+                <% } else { %>
+                    <% reservations.forEach(r => { %>
+                        <section class="reservation">
+                            <section>
+                                <h5><%= r.event_name %></h5>
+                                <div>
+                                    <h5><%= r.room_id %></h5>
+                                    <h5><%= r.time_start.slice(0,5) %> - <%= r.time_end.slice(0,5) %></h5>
+                                    <h5><%= new Date(r.date).toLocaleDateString() %></h5>
+                                </div>
+                                <p><%= r.event_desc %></p>
+                            </section>
+                            <div class="user-reservations-details">
+                                <form method="POST" action="/reservations/<%= r.reserve_id %>/confirm" style="display:inline;">
+                                    <button type="submit">Confirm</button>
+                                </form>
+                                <form method="POST" action="/reservations/<%= r.reserve_id %>/cancel" style="display:inline;">
+                                    <button type="submit">Cancel</button>
+                                </form>
+                            </div>
+                        </section>
+                    <% }) %>
+                <% } %>
             </section>
         </section>
     </main>

@@ -1,0 +1,25 @@
+<%- include('partials/head') %>
+<body>
+    <%- include('partials/header') %>    
+    <main class="reserve">
+        <form class="reserve-form" method="post" action="/reserve/new">
+            <h2>Create New Reservation:</h2>
+            <br>
+            <label for="room_id">Room:</label><br>
+            <input type="text" name="room_id" value="<%= room_id || '' %>"><br><br>
+            <label for="date">Date:</label><br>
+            <input type="date" name="date" value="<%= date || '' %>"><br><br>
+            <label for="event_name">Event Name:</label><br>
+            <input type="text" name="event_name" value="<%= event_name || '' %>"><br><br>
+            <label for="event_desc">Event Description:</label><br>
+            <input type="text" name="event_desc" value="<%= event_desc || '' %>"><br><br>
+            <label for="people_count">People Count:</label><br>
+            <input type="number" name="people_count" min="1" value="<%= people_count || '' %>"><br><br>
+            <label for="time_start">Start Time:</label><br>
+            <input type="time" name="time_start" value="<%= time_start || '' %>"><br><br>
+            <label for="time_end">End Time:</label><br>
+            <input type="time" name="time_end" value="<%= time_end || '' %>"><br><br>
+            <button type="submit">Create New Reservation</button>
+        </form>
+    </main>
+<%- include('partials/footer') %>
