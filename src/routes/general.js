@@ -233,4 +233,8 @@ router.post('/contact', async (req, res) => {
   }
 });
 
+router.get('/map/error', (req, res) => {
+    res.render('map');
+});
+
 export default router;

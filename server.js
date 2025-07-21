@@ -52,6 +52,13 @@ app.use(generalRoutes);
 app.use(loginRoutes);
 app.use(dashboardRoutes);
  
+// 404 Error Handler - leave in server.js
+app.use((req, res, next) => {
+    const err = new Error('Page Not Found');
+    err.status = 404;
+    next(err); // Forward to the global error handler
+});
+ 
 // Global Error Handler - leave in server.js
 app.use((err, req, res, next) => {
     // Log the error for debugging
