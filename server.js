@@ -29,21 +29,21 @@ app.set('views', path.join(__dirname, 'src/views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(flash());
 
-//setting the session configuration.
+//setting the session configuration. - refactor to index.js
 app.use(session({
   secret: HASH,
   resave: false,
   saveUninitialized: false
 }));
 
-//Flash messages
+//Flash messages - refactor to index.js
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
 
-// This function will require login for some pages
+// This function will require login for some pages - refactor to index.js
 function requireLogin(req, res, next) {
   if (!req.session.userId) {
     req.flash('error_msg', 'You must be logged in to access this page.');
@@ -52,12 +52,13 @@ function requireLogin(req, res, next) {
   next();
 }
 
-// Starting with my routes here before moving them into their own refactored directories
+// This is the home page - refactor to general.js
 app.get('/', (req, res) => {
     const title = "I-Reserve Home";
     res.render('index', { title, loggedIn: req.session.userId ? true : false });
 });
 
+//this is for the dashboard - refactor to dashboard.js
 app.get('/dashboard', requireLogin, (req, res) => {
   if (req.session.permission_id != 0)
   {
@@ -66,10 +67,11 @@ app.get('/dashboard', requireLogin, (req, res) => {
   else
   {
     const title = "I-Reserve Dashboard";
-    res.render('dashboard', { title, loggedIn: req.session.userId ? true : false });
+    res.render('dashboard/dashboard', { title, loggedIn: req.session.userId ? true : false });
   }
 });
 
+//this is for the dashboard - refactor to dashboard.js
 app.post('/dashboard/room', async (req, res) => {
   const { room_id, building_id, floor_number, max_occupancy, room_desc, permission_id } = req.body;
   console.log("POST dashboard ROOM running");
@@ -132,6 +134,7 @@ app.post('/dashboard/room', async (req, res) => {
   }
 });
 
+//this is for the dashboard - refactor to dashboard.js
 app.post('/dashboard/building', async (req, res) => {
   let { building_id, building_name, time_open, time_closed } = req.body;
 
@@ -184,6 +187,7 @@ app.post('/dashboard/building', async (req, res) => {
   }
 });
 
+//this is for the dashboard - refactor to dashboard.js
 app.post('/dashboard/users', async (req, res) => {
   let { i_number, fname, lname, password, email, permission_id } = req.body;
   console.log("POST dashboard USERS running");
@@ -248,11 +252,13 @@ app.post('/dashboard/users', async (req, res) => {
   }
 });
 
+//this is for the map page - refactor to general.js
 app.get('/map', (req, res) => {
     const title = "I-Reserve Map";
     res.render('map', { title, loggedIn: req.session.userId ? true : false });
 });
 
+//this is for the profile page - refactor to general.js
 app.get('/profile', requireLogin, async (req, res) => {
   const permission_id = req.session.permission_id;
   const title = 'Your Profile';
@@ -301,6 +307,7 @@ app.get('/profile', requireLogin, async (req, res) => {
   }
 });
 
+//this is for /availability - refactor to general.js
 app.get('/availability', async (req, res) => {
   const { date, building, floor, time_start, time_end } = req.query;
 
@@ -364,6 +371,7 @@ app.get('/availability', async (req, res) => {
   }
 });
 
+// this is for /messages. - refactor to dashboard.js
 app.get('/messages', async (req, res) => {
   try {
     // Ensure only admins can access this, if needed
@@ -378,7 +386,7 @@ app.get('/messages', async (req, res) => {
       ORDER BY message_title;
     `);
 
-    res.render('messages', {
+    res.render('dashboard/messages', {
       title: "I-Reserve Messages",
       messages: result.rows,
       loggedIn: req.session.userId ? true : false
@@ -390,11 +398,13 @@ app.get('/messages', async (req, res) => {
   }
 });
 
+// this is part of /login - refactor to login.js
 app.get('/newaccount', (req, res) => {
     const title = "I-Reserve New Account";
     res.render('login/createAccount', { title });
 });
 
+// this is part of /login - refactor to login.js
 app.post('/newaccount', async (req, res) => {
     const { i_number, fname, lname, password, password_confirm } = req.body;
     const email = req.body.email.toLowerCase();
@@ -441,17 +451,20 @@ app.post('/newaccount', async (req, res) => {
   }
 });
 
+// this is part of /login - refactor to login.js
 app.get('/login', (req, res) => {
     const title = "I-Reserve Login";
     res.render('login/login', { title });
 });
 
+// this is part of /login - refactor to login.js
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login');
   });
 });
 
+//this is part of the reservation page. - refactor to general.js
 app.get('/reserve', requireLogin, (req, res) => {
   const { room_id, date, time_start, time_end, event_name, event_desc, people_count } = req.query;
   const title = "Create New Reservation";
@@ -468,6 +481,7 @@ app.get('/reserve', requireLogin, (req, res) => {
   });
 });
 
+//this is part of the reservation page. - refactor to general.js
 app.post('/reserve/new', async (req, res) => {
   const { room_id, date, event_name, event_desc, time_start, time_end, people_count } = req.body;
   const i_number = req.session.userId;
@@ -487,6 +501,7 @@ app.post('/reserve/new', async (req, res) => {
   }
 });
 
+//this is part of the profile page. - refactor to general.js
 app.post('/reservations/:id/confirm', requireLogin, async (req, res) => {
   const reserve_id = req.params.id;
 
@@ -504,6 +519,7 @@ app.post('/reservations/:id/confirm', requireLogin, async (req, res) => {
   }
 });
 
+//this is part of the profile page. - refactor to general.js
 app.post('/reservations/:id/cancel', requireLogin, async (req, res) => {
   const reserve_id = req.params.id;
 
@@ -521,12 +537,14 @@ app.post('/reservations/:id/cancel', requireLogin, async (req, res) => {
   }
 });
 
+//this is a contact route - refactor to general.js
 app.get('/contact', (req, res) => {
     const title = "I-Reserve Contact";
     const success = req.query.success;
     res.render('contact', { title, success, loggedIn: req.session.userId ? true : false });
 })
 
+//this is a contact route - refactor to general.js
 app.post('/contact', async (req, res) => {
   const { return_email, message_title, message } = req.body;
   const i_number = req.session?.userId; // make sure session is configured
@@ -550,7 +568,7 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-//here is the /login page check for password
+// This is a login route - refactor to login.js
 app.post('/login', async (req, res) => {
   const  {password } = req.body;
   const email = req.body.email.toLowerCase();
@@ -585,14 +603,14 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// 404 Error Handler
+// 404 Error Handler - leave in server.js
 app.use((req, res, next) => {
     const err = new Error('Page Not Found');
     err.status = 404;
     next(err); // Forward to the global error handler
 });
  
-// Global Error Handler
+// Global Error Handler - leave in server.js
 app.use((err, req, res, next) => {
     // Log the error for debugging
     console.error(err.stack);
