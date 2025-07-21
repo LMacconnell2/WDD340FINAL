@@ -1,0 +1,15 @@
+/* Reservation Page Styling */
+.reserve-form
+{
+    background-color: #EEEEEE;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    padding: 25px;
+    padding-right: 40px;
+    max-width: 600px;
+    margin: 25px auto;
+}
+.reserve-form > input
+{
+    width: 100%;
+}

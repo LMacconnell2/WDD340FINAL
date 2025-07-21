@@ -23,6 +23,12 @@
         <section class="user-reservations">
             <h1>My Reservations:</h1>
             <section class="user-reservation-list">
+                <% if (error_msg) { %>
+                <div class="alert-error"><%= error_msg %></div>
+                <% } %>
+                <% if (success_msg) { %>
+                    <div class="alert-success"><%= success_msg %></div>
+                <% } %>
                 <% if (reservations.length === 0) { %>
                     <p>You don't have any reservations yet.</p>
                 <% } else { %>

@@ -1,0 +1,82 @@
+/* Styles for larger screens */
+@media (min-width: 800px)
+{
+    /* Desktop Header Stuff */
+    header
+    {
+        display: flex;
+        flex-direction: row;
+        height: 100px;
+        overflow: hidden; /*FIX THIS!*/
+    }
+    nav
+    {
+        display:flex;
+        flex-direction: row;
+        align-content: center;
+        align-self: center;
+        height: 100px;
+        background-color: blue;
+    }
+    nav > a
+    {
+        padding-top: 35px;
+        width: 100%;
+        height: 100px;
+    }
+    .header-menu
+    {
+        display: none;
+    }
+
+    /* Desktop Profile Page */
+    .profile
+    {
+        display: flex;
+    }
+
+    /* Desktop Footer Stuff */
+    .footer-links
+    {
+        display:flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+    .footer-black
+    {
+        justify-content: space-around;
+    }
+    /* Availabiloty Desktop styling*/
+    .availability
+    {
+        display:grid;
+        grid-template-columns: 1fr 4fr;
+    }
+    .avail-title
+    {
+        grid-column: 1 / 3;
+    }
+    .avail-card
+    {
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+    }
+
+    .contact-form
+    {
+        width: 700px;
+    }
+
+    .contact-form > input
+    {
+        width: 98%;
+    }
+    .dashboard
+    {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+
+}

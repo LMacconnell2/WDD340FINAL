@@ -1,0 +1,28 @@
+/* contact page styling*/
+.contact-form
+{
+    border: 1px solid #444444;
+    border-radius: 10px;
+    background-color: #EEEEEE;
+    margin: 50px;
+    padding: 25px;
+    width: 300px;
+    justify-self: center;
+}
+
+.contact-form > input
+{
+    width: 95%;
+}
+
+#contact-msg
+{
+    height: 200px;
+}
+.contact-page-title
+{
+    color: white;
+    background-color: #444444;
+    text-align: center;
+    margin: 0px;
+}

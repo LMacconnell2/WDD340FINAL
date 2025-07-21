@@ -4,8 +4,11 @@
     <main class="contact">
         <h1 class="contact-page-title">Contact Us: </h1>
         <form class="contact-form" action="/contact" method="POST">
-            <% if (success) { %>
-                <p class="success-msg">Your message has been sent!</p>
+            <% if (error_msg) { %>
+                <div class="alert-error"><%= error_msg %></div>
+            <% } %>
+            <% if (success_msg) { %>
+                <div class="alert-success"><%= success_msg %></div>
             <% } %>
             <label for="contact-title">Title:</label>
             <br>

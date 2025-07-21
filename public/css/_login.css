@@ -1,0 +1,33 @@
+/* Styling for NewAccount page*/
+.new-account
+{
+    background-color: blue;
+}
+
+.new-account-form, .login-form
+{
+    background-color: #EEEEEE;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 25px;
+    margin-top: 25px;
+}
+
+.login-welcome
+{
+    background-color: #EEEEEE;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    max-width: 300px;
+    margin: 0 auto;
+    margin-top: 25px;
+}
+
+.login-welcome > h1
+{
+    text-align: center;
+}

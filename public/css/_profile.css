@@ -1,0 +1,90 @@
+/* Profile Page CSS - Mobile */
+.user 
+{
+    background-color: #EEEEEE;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px;
+    border: 1px solid #444444;
+}
+
+.user > img 
+{
+    max-width: 250px;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+.user > h3, h4, p, a
+{
+    margin: 5px;
+}
+
+.user > a
+{
+    text-decoration: none;
+    background-color: blue;
+    color: white;
+    padding: 10px;
+    border: 1px solid blue;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+.user > a:hover
+{
+    background-color: rgb(0, 0, 200);
+    border: 1px solid #444444;
+}
+
+.user-reservations
+{
+    width: 100%;
+}
+
+.user-reservation-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.reservation
+{
+    background-color: #EEEEEE;
+    margin-left: 50px;
+    margin-right: 50px;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: space-between;
+    padding: 25px;
+    width: 85%;
+}
+
+.user-reservations-details
+{
+    margin-left: 25px;
+    margin-right: 25px;
+    display: flex;
+    flex-direction: column;
+    max-width: 100px;
+    justify-content: space-evenly;
+}
+
+.user-reservations > h1
+{
+    text-align: center;
+}
+
+.reservation > section > h5
+{
+    text-align: center;
+    margin-bottom: 10px;
+}
+.reservation > section > div
+{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}

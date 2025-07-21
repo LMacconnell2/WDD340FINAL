@@ -6,6 +6,12 @@
         </div>
         <form class="login-form" action="/login" method="POST">
             <h3>Login:</h3>
+            <% if (error_msg) { %>
+                <div class="alert-error"><%= error_msg %></div>
+            <% } %>
+            <% if (success_msg) { %>
+                <div class="alert-success"><%= success_msg %></div>
+            <% } %>
             <br>
             <label>Email:</label>
             <input type="text" name="email" required>

@@ -9,6 +9,7 @@ import db from './src/models/db.js'; // Import the DB connection
 import { setupDatabase, testConnection } from './src/models/setup.js'; // Import the DB setup
 import bcrypt from 'bcrypt';
 import session from 'express-session';
+import flash from 'connect-flash';
  
 // Create an instance of an Express application
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 app.use(express.urlencoded({ extended: true }));
+app.use(flash());
 
 //setting the session configuration.
 app.use(session({
@@ -34,9 +36,17 @@ app.use(session({
   saveUninitialized: false
 }));
 
+//Flash messages
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  next();
+});
+
 // This function will require login for some pages
 function requireLogin(req, res, next) {
   if (!req.session.userId) {
+    req.flash('error_msg', 'You must be logged in to access this page.');
     return res.redirect('/login');
   }
   next();
@@ -99,7 +109,8 @@ app.post('/dashboard/room', async (req, res) => {
 
   if (errors.length > 0) {
     console.error("Validation failed:", errors);
-    return res.status(400).send(errors.join(" "));
+    req.flash('error_msg', errors.join(" "));
+    return res.redirect('/dashboard');
   }
 
   try {
@@ -123,7 +134,6 @@ app.post('/dashboard/room', async (req, res) => {
 
 app.post('/dashboard/building', async (req, res) => {
   let { building_id, building_name, time_open, time_closed } = req.body;
-  console.log("POST dashboard BUILDING running");
 
   // Convert to uppercase and trim whitespace for consistency
   building_id = building_id?.trim().toUpperCase();
@@ -153,8 +163,8 @@ app.post('/dashboard/building', async (req, res) => {
   }
 
   if (errors.length > 0) {
-    console.error("Validation errors:", errors);
-    return res.status(400).send(errors.join(" "));
+    req.flash('error_msg', errors.join(" "));
+    return res.redirect('/dashboard');
   }
 
   try {
@@ -213,8 +223,8 @@ app.post('/dashboard/users', async (req, res) => {
 
   // If validation fails
   if (errors.length > 0) {
-    console.error("Validation errors:", errors);
-    return res.status(400).send(errors.join(" "));
+    req.flash('error_msg', errors.join(" "));
+    return res.redirect('/dashboard');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10); //Hash the entered password before saving to DB
@@ -234,7 +244,7 @@ app.post('/dashboard/users', async (req, res) => {
     res.redirect('/dashboard');
   } catch (err) {
     console.error("DB insert/update error:", err);
-    res.status(500).send('USers creation or update failed.');
+    res.status(500).send('Users creation or update failed.');
   }
 });
 
@@ -258,7 +268,8 @@ app.get('/profile', requireLogin, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).send("User not found.");
+      req.flash('error_msg', 'User not found.')
+      return res.redirect('/login');
     }
 
     const { fname, lname, email, permission_name } = result.rows[0];
@@ -357,7 +368,8 @@ app.get('/messages', async (req, res) => {
   try {
     // Ensure only admins can access this, if needed
     if (req.session.permission_id !== 0) {
-      return res.redirect('/login');
+      req.flash('error_msg', 'Only administrators may view this page.')
+      return res.redirect('/profile');
     }
 
     const result = await db.query(`
@@ -373,7 +385,8 @@ app.get('/messages', async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching messages:", err);
-    res.status(500).send("Failed to load messages.");
+    req.flash('error_msg', 'Failed to load messages.')
+    return res.redirect('/profile');
   }
 });
 
@@ -391,17 +404,22 @@ app.post('/newaccount', async (req, res) => {
         const userCheck = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         if (userCheck.rows.length > 0) 
         {
-        return res.send('Email already registered.');
+          req.flash('error_msg', 'Email Already Registered');
+          return res.redirect('/newaccount');
+        
         }
 
         if (!email || !password || !i_number || !fname || !lname) {
-            return res.status(400).send('All fields are required.');
+          req.flash('error_msg', 'All Fields Are Required');
+          return res.redirect('/newaccount');
         }
         if (password.length < 6) {
-            return res.status(400).send('Password must be at least 6 characters.');
+          req.flash('error_msg', 'Password Must Be 6 Characters or More');
+          return res.redirect('/newaccount');
         }       
         if (password !== password_confirm) {
-            return res.status(400).send('Passwords must match.');
+          req.flash('error_msg', 'Passwords Must Match');
+          return res.redirect('/newaccount');
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -418,7 +436,8 @@ app.post('/newaccount', async (req, res) => {
     res.redirect('/profile');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Registration failed.');
+    req.flash('error_msg', 'Registration failed');
+    res.redirect('/newaccount');
   }
 });
 
@@ -459,11 +478,12 @@ app.post('/reserve/new', async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [i_number, room_id, date, event_name, event_desc, time_start, time_end, people_count, 0]
     );
-
+    req.flash('success_msg', 'Reservation created successfully.');
     res.redirect('/profile'); // or wherever you want to take the user after
   } catch (err) {
     console.error("Error inserting reservation:", err);
-    res.status(500).send("Error creating reservation.");
+    req.flash('error_msg', 'Error Creating Reservation.');
+    res.redirect('/reserve');
   }
 });
 
@@ -475,10 +495,12 @@ app.post('/reservations/:id/confirm', requireLogin, async (req, res) => {
       'UPDATE reservation SET confirmed = 1 WHERE reserve_id = $1',
       [reserve_id]
     );
+    req.flash('success_msg', 'Reservation confirmed successfully.');
     res.redirect('/profile');
   } catch (err) {
     console.error('Error confirming reservation:', err);
-    res.status(500).send('Failed to confirm reservation.');
+    req.flash('error_msg', 'Reservation not confirmed.');
+    res.redirect('/profile');
   }
 });
 
@@ -490,10 +512,12 @@ app.post('/reservations/:id/cancel', requireLogin, async (req, res) => {
       'DELETE FROM reservation WHERE reserve_id = $1',
       [reserve_id]
     );
+    req.flash('success_msg', 'Reservation cancelled successfully.');
     res.redirect('/profile');
   } catch (err) {
     console.error('Error cancelling reservation:', err);
-    res.status(500).send('Failed to cancel reservation.');
+    req.flash('error_msg', 'Failed to cancel reservation.');
+    res.redirect('/profile');
   }
 });
 
@@ -508,7 +532,8 @@ app.post('/contact', async (req, res) => {
   const i_number = req.session?.userId; // make sure session is configured
 
   if (!i_number) {
-    return res.status(401).send("You must be logged in to send a message.");
+    req.flash('error_msg', 'You must be logged in to send a message.')
+    return res.redirect('/login');
   }
 
   try {
@@ -520,7 +545,8 @@ app.post('/contact', async (req, res) => {
     res.redirect('/contact?success=true');
   } catch (err) {
     console.error("Error inserting message:", err);
-    res.status(500).send("There was an error sending your message.");
+    req.flash('error_msg', 'Message submission failed. Please try agian.')
+    res.redirect('/contact');
   }
 });
 
@@ -533,23 +559,22 @@ app.post('/login', async (req, res) => {
     // Step 1: Look up user by email
     const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
-    console.log("Password entered:", password);
 
     if (!user) {
-      return res.status(401).send('Invalid email or password');
+      req.flash('error_msg', '*Invalid email or password*');
+      return res.redirect('/login');
     }
 
-    // Step 2: Compare passwords
     const passwordsMatch = await bcrypt.compare(password, user.password); // only if hashed
 
     if (!passwordsMatch) {
-      return res.status(401).send('Invalid email or password');
+      req.flash('error_msg', '*Invalid password, please try again*');
+      return res.redirect('/login');
     }
 
     // Step 3: Set session or redirect
     req.session.userId = user.i_number;
     req.session.permission_id = user.permission_id; 
-    console.log("Logged in. Session userId:", req.session.userId);
     req.session.username = `${user.fname} ${user.lname}`;
     res.redirect('/profile');
 

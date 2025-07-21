@@ -1,0 +1,74 @@
+/* Footer Styling - Mobile */
+footer
+{
+    max-width: 100%;
+}
+.footer-blue
+{
+    background-color: blue;
+    color:white;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
+.footer-logo
+{
+    width: 100px;
+    height: 75px;
+    align-self: center;
+    margin: 10px;
+    grid-column: 1;
+    justify-self: center;
+    grid-row: 1/3;
+}
+.footer-links > h3
+{
+    text-align: center;
+}
+.footer-links
+{
+    grid-column: 2;
+    border-bottom: 1px solid white;
+}
+.footer-social
+{
+    grid-column: 2;
+    display: flex;
+    justify-content: space-evenly;
+}
+.footer-social > a
+{
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+.footer-social > a > img
+{
+    width: 25px;
+    padding: 5px;
+    margin: 5px;
+}
+.footer-social > a:hover
+{
+    background-color: #444444;
+}
+.footer-black
+{
+    background-color: black;
+    color: white;
+    display: flex;
+    padding: 25px;
+}
+.footer-copyright
+{
+    text-align: center;
+    font-size: 14px;
+    padding: 20px;
+}
+.footer-address
+{
+    border-right: 1px solid white;
+    padding-right: 50px;
+}
+
+.disclaimer
+{
+    font-size: 8px;
+}
